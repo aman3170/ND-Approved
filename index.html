@@ -14,40 +14,29 @@
   <meta http-equiv="Content-Security-Policy" content="img-src 'self' data:; media-src 'self' data:">
 </head>
 <body>
-  <h1>ND Approved</h1>
+  <h1>Barcode Scanner</h1>
   <video id="video" autoplay></video>
   <script src="https://unpkg.com/@zxing/library@latest/dist/zxing-library.min.js"></script>
   <script>
     const video = document.getElementById('video');
 
-    navigator.mediaDevices.enumerateDevices()
-      .then(devices => {
-        const cameraDevice = devices.find(device => device.kind === 'videoinput');
-        if (cameraDevice) {
-          navigator.mediaDevices.getUserMedia({ video: { deviceId: cameraDevice.deviceId } })
-            .then(stream => {
-              video.srcObject = stream;
-              video.play();
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      .then(stream => {
+        video.srcObject = stream;
+        video.play();
 
-              const barcodeReader = new ZXing.BarcodeReader();
-              barcodeReader.decodeOnceFromVideoDevice(null, video)
-                .then(result => {
-                  console.log(result.text);
-                  alert(`Scanned barcode: ${result.text}`);
-                })
-                .catch(error => {
-                  console.error('Error scanning barcode:', error);
-                });
-            })
-            .catch(error => {
-              console.error('Camera access denied:', error);
-            });
-        } else {
-          console.error('No camera device found');
-        }
+        const barcodeReader = new ZXing.BarcodeReader();
+        barcodeReader.decodeOnceFromVideoDevice(null, video)
+          .then(result => {
+            console.log(result.text);
+            alert(`Scanned barcode: ${result.text}`);
+          })
+          .catch(error => {
+            console.error('Error scanning barcode:', error);
+          });
       })
       .catch(error => {
-        console.error('Error enumerating devices:', error);
+        console.error('Camera access denied:', error);
       });
   </script>
 </body>
