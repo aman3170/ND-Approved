@@ -1,19 +1,40 @@
-<script src="https://unpkg.com/@zxing/library@latest/dist/zxing-library.min.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcode Scanner</title>
+    <style>
+        #video {
+            width: 100%;
+            height: 100vh;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <h1>Barcode Scanner</h1>
+    <video id="video" autoplay></video>
+    <script src="https://unpkg.com/@zxing/library@latest/dist/zxing-library.min.js"></script>
+    <script>
+        const video = document.getElementById('video');
+        const barcodeReader = new ZXing.BarcodeReader();
 
-const video = document.getElementById('video');
-const barcodeReader = new ZXing.BarcodeReader();
+        // Request camera access
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+                video.play();
+            })
+            .catch(err => console.error(err));
 
-// Request camera access
-navigator.mediaDevices.getUserMedia({ video: true })
-  .then(stream => {
-    video.srcObject = stream;
-    video.play();
-  })
-  .catch(err => console.error(err));
-
-// Scan barcode
-barcodeReader.decodeOnceFromVideoDevice(null, video)
-  .then(result => {
-    console.log(result.text);
-  })
-  .catch(err => console.error(err));
+        // Scan barcode
+        barcodeReader.decodeOnceFromVideoDevice(null, video)
+            .then(result => {
+                console.log(result.text);
+                alert(`Scanned barcode: ${result.text}`);
+            })
+            .catch(err => console.error(err));
+    </script>
+</body>
+</html>
