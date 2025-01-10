@@ -1,40 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barcode Scanner</title>
-    <style>
-        #video {
-            width: 100%;
-            height: 100vh;
-            object-fit: cover;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barcode Scanner</title>
+  <style>
+    #video {
+      width: 100%;
+      height: 100vh;
+      object-fit: cover;
+    }
+  </style>
+  <meta http-equiv="Content-Security-Policy" content="img-src 'self' data:; media-src 'self' data:">
 </head>
 <body>
-    <h1>Barcode Scanner</h1>
-    <video id="video" autoplay></video>
-    <script src="https://unpkg.com/@zxing/library@latest/dist/zxing-library.min.js"></script>
-    <script>
-        const video = document.getElementById('video');
-        const barcodeReader = new ZXing.BarcodeReader();
+  <h1>ND Approved</h1>
+  <video id="video" autoplay></video>
+  <script src="https://unpkg.com/@zxing/library@latest/dist/zxing-library.min.js"></script>
+  <script>
+    const video = document.getElementById('video');
 
-        // Request camera access
-        navigator.mediaDevices.getUserMedia({ video: true })
+    navigator.mediaDevices.enumerateDevices()
+      .then(devices => {
+        const cameraDevice = devices.find(device => device.kind === 'videoinput');
+        if (cameraDevice) {
+          navigator.mediaDevices.getUserMedia({ video: { deviceId: cameraDevice.deviceId } })
             .then(stream => {
-                video.srcObject = stream;
-                video.play();
-            })
-            .catch(err => console.error(err));
+              video.srcObject = stream;
+              video.play();
 
-        // Scan barcode
-        barcodeReader.decodeOnceFromVideoDevice(null, video)
-            .then(result => {
-                console.log(result.text);
-                alert(`Scanned barcode: ${result.text}`);
+              const barcodeReader = new ZXing.BarcodeReader();
+              barcodeReader.decodeOnceFromVideoDevice(null, video)
+                .then(result => {
+                  console.log(result.text);
+                  alert(`Scanned barcode: ${result.text}`);
+                })
+                .catch(error => {
+                  console.error('Error scanning barcode:', error);
+                });
             })
-            .catch(err => console.error(err));
-    </script>
+            .catch(error => {
+              console.error('Camera access denied:', error);
+            });
+        } else {
+          console.error('No camera device found');
+        }
+      })
+      .catch(error => {
+        console.error('Error enumerating devices:', error);
+      });
+  </script>
 </body>
 </html>
